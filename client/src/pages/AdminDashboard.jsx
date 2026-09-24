@@ -129,7 +129,7 @@ const AdminDashboard = () => {
 
       {/* Filter Tabs */}
       <div className="flex items-center gap-2 overflow-x-auto pb-2 text-xs">
-        {['All', 'Pending', 'Confirmed', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled'].map((st) => (
+        {['All', 'Pending', 'Payment Verification', 'Confirmed', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled'].map((st) => (
           <button
             key={st}
             onClick={() => setFilterStatus(st)}
@@ -410,7 +410,7 @@ const AdminDashboard = () => {
                 Update Order Lifecycle Status:
               </label>
               <div className="flex flex-wrap gap-2">
-                {['Pending', 'Confirmed', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled'].map((st) => (
+                {['Pending', 'Payment Verification', 'Confirmed', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled'].map((st) => (
                   <button
                     key={st}
                     onClick={() => handleStatusChange(selectedOrder._id, st)}

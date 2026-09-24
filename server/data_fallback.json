@@ -4,7 +4,7 @@
       "_id": "user_admin_1",
       "name": "Ammu Admin",
       "email": "admin@ammuframestore.com",
-      "password": "$2a$10$N8eDGe1vI41.Ws7tV8Cet.hBtBVS.KvC5lwwOgrYFTdCN7pm79u1u",
+      "password": "$2a$10$CxH38OHWqXoe8TXuhLRQcOZbKVrgAE563y6Rm58j5mlherooAtzle",
       "phone": "9876543210",
       "role": "admin",
       "address": {
@@ -258,6 +258,47 @@
     }
   ],
   "orders": [
+    {
+      "_id": "ord_1790240714782",
+      "orderId": "AMMU1006",
+      "userId": null,
+      "customerName": "Ammu Deepika",
+      "phone": "9789719885",
+      "email": "deepika84284@gmail.com",
+      "items": [
+        {
+          "productId": "mini_memory_1",
+          "productName": "Mini Memory Frame (₹1 Test Order)",
+          "quantity": 1,
+          "price": 1,
+          "frame": "Classic Oak Wood",
+          "size": "4 × 6 inch",
+          "filter": "Original",
+          "originalImageUrl": "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80",
+          "customizedImageUrl": "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80",
+          "customText": "",
+          "cartItemId": "mini_memory_1_Classic Oak Wood_4 × 6 inch_1790231325355"
+        }
+      ],
+      "totalAmount": 1,
+      "shippingAddress": {
+        "doorNo": "3/46 west street perngulam",
+        "street": "mariyammankovil",
+        "area": "perungulam",
+        "city": "ramanathapuram",
+        "district": "Chennai",
+        "state": "Tamil Nadu",
+        "pincode": "623536",
+        "deliveryInstructions": ""
+      },
+      "paymentMethod": "Cash on Delivery",
+      "utrNumber": "",
+      "paymentScreenshotUrl": "",
+      "paymentStatus": "Pending",
+      "orderStatus": "Pending",
+      "createdAt": "2026-09-24T09:05:14.782Z",
+      "updatedAt": "2026-09-24T09:05:14.782Z"
+    },
     {
       "_id": "ord_1790240235796",
       "orderId": "AMMU1005",

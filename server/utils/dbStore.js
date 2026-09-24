@@ -297,8 +297,12 @@ class DBStore {
   async createOrder(orderPayload) {
     if (this.isMongoConnected) {
       try {
-        return await Order.create(orderPayload);
-      } catch (e) {}
+        const mongoOrder = await Order.create(orderPayload);
+        console.log(`[MongoDB Order Inserted]: ID ${mongoOrder._id}, OrderID: ${mongoOrder.orderId}`);
+        return mongoOrder;
+      } catch (e) {
+        console.error('[MongoDB Order Creation Error]:', e.message);
+      }
     }
     const newOrder = {
       _id: `ord_${Date.now()}`,
@@ -319,7 +323,9 @@ class DBStore {
         if (filter.phone) query.phone = filter.phone;
         if (filter.userId) query.userId = filter.userId;
         return await Order.find(query).sort({ createdAt: -1 });
-      } catch (e) {}
+      } catch (e) {
+        console.error('[MongoDB Get Orders Error]:', e.message);
+      }
     }
 
     let ords = [...this.data.orders];
@@ -339,27 +345,32 @@ class DBStore {
     if (this.isMongoConnected) {
       try {
         let ord;
-        if (idOrOrderId.startsWith('AMMU')) {
+        if (typeof idOrOrderId === 'string' && idOrOrderId.startsWith('AMMU')) {
           ord = await Order.findOne({ orderId: idOrOrderId });
         } else {
           ord = await Order.findById(idOrOrderId);
         }
         if (ord) return ord;
-      } catch (e) {}
+      } catch (e) {
+        console.error('[MongoDB Get Order By ID Error]:', e.message);
+      }
     }
 
     return this.data.orders.find(o => o._id === idOrOrderId || o.orderId === idOrOrderId);
   }
 
-  async updateOrderStatus(id, orderStatus) {
+  async updateOrderStatus(idOrOrderId, orderStatus) {
     if (this.isMongoConnected) {
       try {
-        const ord = await Order.findByIdAndUpdate(id, { orderStatus, updatedAt: new Date() }, { new: true });
+        const query = typeof idOrOrderId === 'string' && idOrOrderId.startsWith('AMMU') ? { orderId: idOrOrderId } : { _id: idOrOrderId };
+        const ord = await Order.findOneAndUpdate(query, { orderStatus, updatedAt: new Date() }, { new: true });
         if (ord) return ord;
-      } catch (e) {}
+      } catch (e) {
+        console.error('[MongoDB Update Order Status Error]:', e.message);
+      }
     }
 
-    const ord = this.data.orders.find(o => o._id === id || o.orderId === id);
+    const ord = this.data.orders.find(o => o._id === idOrOrderId || o.orderId === idOrOrderId);
     if (ord) {
       ord.orderStatus = orderStatus;
       ord.updatedAt = new Date();
@@ -369,15 +380,18 @@ class DBStore {
     return null;
   }
 
-  async verifyPayment(id, paymentStatus, orderStatus) {
+  async verifyPayment(idOrOrderId, paymentStatus, orderStatus) {
     if (this.isMongoConnected) {
       try {
-        const ord = await Order.findByIdAndUpdate(id, { paymentStatus, orderStatus, updatedAt: new Date() }, { new: true });
+        const query = typeof idOrOrderId === 'string' && idOrOrderId.startsWith('AMMU') ? { orderId: idOrOrderId } : { _id: idOrOrderId };
+        const ord = await Order.findOneAndUpdate(query, { paymentStatus, orderStatus, updatedAt: new Date() }, { new: true });
         if (ord) return ord;
-      } catch (e) {}
+      } catch (e) {
+        console.error('[MongoDB Verify Payment Error]:', e.message);
+      }
     }
 
-    const ord = this.data.orders.find(o => o._id === id || o.orderId === id);
+    const ord = this.data.orders.find(o => o._id === idOrOrderId || o.orderId === idOrOrderId);
     if (ord) {
       ord.paymentStatus = paymentStatus;
       ord.orderStatus = orderStatus;
