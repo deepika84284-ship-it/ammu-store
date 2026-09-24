@@ -5,9 +5,10 @@
   "main": "server/server.js",
   "scripts": {
     "start": "node server/server.js",
+    "postinstall": "cd client && npm install && cd ../server && npm install",
     "server": "npm run dev --prefix server",
     "client": "npm run dev --prefix client",
-    "build": "npm run build --prefix client"
+    "build": "cd client && npm install && npm run build"
   },
   "keywords": [
     "photo-frame",
