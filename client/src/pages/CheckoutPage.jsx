@@ -140,18 +140,26 @@ const CheckoutPage = () => {
         throw new Error(response.message || 'Order creation failed on backend');
       }
     } catch (err) {
-      console.error('[Checkout Error Details]:', {
-        status: err.response?.status,
-        data: err.response?.data,
-        message: err.message,
-        url: err.config?.url
+      const status = err.response?.status;
+      const serverMsg = err.response?.data?.message;
+
+      console.error('[ORDER ERROR]', {
+        URL: err.config?.url,
+        STATUS: status || 'Network/Connection Failed',
+        RESPONSE: err.response?.data,
+        MESSAGE: err.message
       });
 
-      const serverMsg = err.response?.data?.message;
-      if (serverMsg) {
-        showToast(`Unable to place order: ${serverMsg}`, 'error');
+      if (status === 401) {
+        showToast('Please sign in again to complete your order.', 'error');
+      } else if (status === 400) {
+        showToast(`Please check order details: ${serverMsg || 'Invalid order data'}`, 'error');
+      } else if (status === 500) {
+        showToast(`Server error: ${serverMsg || 'Failed to create order on server. Please try again.'}`, 'error');
+      } else if (!err.response) {
+        showToast('Unable to connect to the order server. Please check your network connection.', 'error');
       } else {
-        showToast('Unable to place your order. Please try again.', 'error');
+        showToast(`Unable to place your order: ${serverMsg || err.message}`, 'error');
       }
     } finally {
       setIsSubmitting(false);

@@ -259,6 +259,37 @@
   ],
   "orders": [
     {
+      "_id": "ord_1790240235796",
+      "orderId": "AMMU1005",
+      "userId": null,
+      "customerName": "Deepika Test Order",
+      "phone": "9876543210",
+      "email": "deepika@example.com",
+      "items": [
+        {
+          "albumId": "album_test_999",
+          "productName": "Our Beautiful Memories (Test Album ₹1)",
+          "price": 1,
+          "quantity": 1
+        }
+      ],
+      "totalAmount": 1,
+      "shippingAddress": {
+        "doorNo": "42",
+        "street": "Mount Road",
+        "city": "Chennai",
+        "state": "Tamil Nadu",
+        "pincode": "600001"
+      },
+      "paymentMethod": "Test Order",
+      "utrNumber": "",
+      "paymentScreenshotUrl": "",
+      "paymentStatus": "Paid",
+      "orderStatus": "Confirmed",
+      "createdAt": "2026-09-24T08:57:15.797Z",
+      "updatedAt": "2026-09-24T08:57:15.797Z"
+    },
+    {
       "_id": "ord_1790239433693",
       "orderId": "AMMU1004",
       "userId": null,

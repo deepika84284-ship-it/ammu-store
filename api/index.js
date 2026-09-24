@@ -20,17 +20,16 @@ connectDB().then(() => {
   seedData();
 });
 
-// Middleware
-app.use(cors());
+// Configure CORS to accept requests from Vercel deployed frontend & localhost
+app.use(cors({
+  origin: true,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
+
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/categories', categoryRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/upload', uploadRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -39,6 +38,39 @@ app.get('/api/health', (req, res) => {
     app: 'AMMU FRAME STORE API (Vercel Serverless)',
     tagline: 'Your Memories. Our Frames. One Beautiful Story.',
     timestamp: new Date()
+  });
+});
+
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'online',
+    app: 'AMMU FRAME STORE API (Vercel Serverless)',
+    timestamp: new Date()
+  });
+});
+
+// API Routes mounted on both /api/path and /path for Vercel rewrite compatibility
+app.use('/api/auth', authRoutes);
+app.use('/auth', authRoutes);
+
+app.use('/api/products', productRoutes);
+app.use('/products', productRoutes);
+
+app.use('/api/categories', categoryRoutes);
+app.use('/categories', categoryRoutes);
+
+app.use('/api/orders', orderRoutes);
+app.use('/orders', orderRoutes);
+
+app.use('/api/upload', uploadRoutes);
+app.use('/upload', uploadRoutes);
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error('[Vercel Serverless Error]:', err.stack || err);
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || 'Internal Server Error'
   });
 });
 
