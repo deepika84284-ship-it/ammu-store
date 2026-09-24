@@ -1,0 +1,22 @@
+{
+  "name": "ammu-frame-store",
+  "version": "1.0.0",
+  "description": "AMMU FRAME STORE - Your Memories. Our Frames. One Beautiful Story.",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "server": "npm run dev --prefix server",
+    "client": "npm run dev --prefix client",
+    "build": "npm run build --prefix client"
+  },
+  "keywords": [
+    "photo-frame",
+    "react",
+    "express",
+    "mongodb",
+    "framer-motion",
+    "ai-assistant"
+  ],
+  "author": "AMMU FRAME STORE",
+  "license": "MIT"
+}

@@ -1,0 +1,293 @@
+{
+  "users": [
+    {
+      "_id": "user_admin_1",
+      "name": "Ammu Admin",
+      "email": "admin@ammuframestore.com",
+      "password": "$2a$10$S.292g4y6j35cMSqw8bjTOsck8oy9d6.vzI5jurAwFAZZmARmZWce",
+      "phone": "9876543210",
+      "role": "admin",
+      "address": {
+        "doorNo": "100",
+        "street": "Gallery Street",
+        "city": "Chennai",
+        "state": "Tamil Nadu",
+        "pincode": "600001"
+      }
+    }
+  ],
+  "categories": [
+    {
+      "_id": "cat_1",
+      "name": "Mini Memories",
+      "slug": "mini-memories",
+      "description": "Tiny digital memories starting at ₹1",
+      "order": 1
+    },
+    {
+      "_id": "cat_2",
+      "name": "Classic Frames",
+      "slug": "classic-frames",
+      "description": "Timeless wooden borders",
+      "order": 2
+    },
+    {
+      "_id": "cat_3",
+      "name": "Couple Frames",
+      "slug": "couple-frames",
+      "description": "Romantic moments & anniversaries",
+      "order": 3
+    },
+    {
+      "_id": "cat_4",
+      "name": "Family Frames",
+      "slug": "family-frames",
+      "description": "Warm family portraits",
+      "order": 4
+    },
+    {
+      "_id": "cat_5",
+      "name": "Parents",
+      "slug": "parents",
+      "description": "Mom & Dad special frames",
+      "order": 5
+    },
+    {
+      "_id": "cat_6",
+      "name": "Grandparents",
+      "slug": "grandparents",
+      "description": "Cherished heritage memories",
+      "order": 6
+    },
+    {
+      "_id": "cat_7",
+      "name": "Wedding Frames",
+      "slug": "wedding-frames",
+      "description": "Royal wedding albums & filigree gold",
+      "order": 7
+    },
+    {
+      "_id": "cat_8",
+      "name": "Birthday",
+      "slug": "birthday",
+      "description": "Celebration frames",
+      "order": 8
+    },
+    {
+      "_id": "cat_9",
+      "name": "Baby",
+      "slug": "baby",
+      "description": "Cute baby milestones",
+      "order": 9
+    },
+    {
+      "_id": "cat_10",
+      "name": "Friendship",
+      "slug": "friendship",
+      "description": "Squad memories",
+      "order": 10
+    },
+    {
+      "_id": "cat_11",
+      "name": "Memories",
+      "slug": "memories",
+      "description": "Travel & highlight moments",
+      "order": 11
+    },
+    {
+      "_id": "cat_12",
+      "name": "Custom Collage",
+      "slug": "custom-collage",
+      "description": "Multi-photo grid canvas",
+      "order": 12
+    },
+    {
+      "_id": "cat_13",
+      "name": "Premium Frames",
+      "slug": "premium-frames",
+      "description": "Acrylic & glass artwork",
+      "order": 13
+    }
+  ],
+  "products": [
+    {
+      "_id": "prod_1",
+      "name": "Mini Memory Frame (₹1 Test Order)",
+      "category": "Mini Memories",
+      "price": 1,
+      "originalPrice": 49,
+      "description": "Create a tiny digital memory frame! Perfect for instant testing of photo upload, live customization, and complete order workflow verification.",
+      "dimensions": "4 × 6 inch",
+      "imageUrl": "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80",
+      "frameType": "Classic",
+      "isFeatured": true,
+      "badge": "⚡ TEST FLOW ₹1",
+      "availableSizes": [
+        {
+          "label": "4 × 6 inch",
+          "priceAdjustment": 0
+        },
+        {
+          "label": "5 × 7 inch",
+          "priceAdjustment": 10
+        }
+      ]
+    },
+    {
+      "_id": "prod_2",
+      "name": "Classic Memory Frame",
+      "category": "Classic Frames",
+      "price": 99,
+      "originalPrice": 199,
+      "description": "Elegant minimalist matte frame with protective cover. Turns any snapshot into gallery art.",
+      "dimensions": "8 × 10 inch",
+      "imageUrl": "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=800&q=80",
+      "frameType": "Classic Oak",
+      "isFeatured": true,
+      "badge": "BESTSELLER",
+      "availableSizes": [
+        {
+          "label": "8 × 10 inch",
+          "priceAdjustment": 0
+        },
+        {
+          "label": "10 × 12 inch",
+          "priceAdjustment": 50
+        },
+        {
+          "label": "12 × 18 inch",
+          "priceAdjustment": 100
+        }
+      ]
+    },
+    {
+      "_id": "prod_3",
+      "name": "Love & Togetherness Frame",
+      "category": "Couple Frames",
+      "price": 199,
+      "originalPrice": 399,
+      "description": "Romantic deep mahogany wooden frame with custom warm glow backdrop.",
+      "dimensions": "10 × 12 inch",
+      "imageUrl": "https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=800&q=80",
+      "frameType": "Deep Mahogany",
+      "isFeatured": true,
+      "badge": "POPULAR",
+      "availableSizes": [
+        {
+          "label": "10 × 12 inch",
+          "priceAdjustment": 0
+        },
+        {
+          "label": "12 × 18 inch",
+          "priceAdjustment": 100
+        },
+        {
+          "label": "16 × 24 inch",
+          "priceAdjustment": 200
+        }
+      ]
+    },
+    {
+      "_id": "prod_4",
+      "name": "Family Memories Frame",
+      "category": "Family Frames",
+      "price": 299,
+      "originalPrice": 599,
+      "description": "Spacious wide matting frame designed to showcase family reunions and smiles.",
+      "dimensions": "12 × 18 inch",
+      "imageUrl": "https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=800&q=80",
+      "frameType": "Rustic Walnut",
+      "isFeatured": true,
+      "badge": "FAMILY CHOICE",
+      "availableSizes": [
+        {
+          "label": "12 × 18 inch",
+          "priceAdjustment": 0
+        },
+        {
+          "label": "18 × 24 inch",
+          "priceAdjustment": 150
+        }
+      ]
+    },
+    {
+      "_id": "prod_5",
+      "name": "Golden Memories Royal Frame",
+      "category": "Premium Frames",
+      "price": 399,
+      "originalPrice": 799,
+      "description": "Handcrafted golden ornate border frame featuring museum-grade cover.",
+      "dimensions": "14 × 20 inch",
+      "imageUrl": "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=800&q=80",
+      "frameType": "Royal Gold",
+      "isFeatured": true,
+      "badge": "LUXURY",
+      "availableSizes": [
+        {
+          "label": "14 × 20 inch",
+          "priceAdjustment": 0
+        },
+        {
+          "label": "18 × 24 inch",
+          "priceAdjustment": 180
+        }
+      ]
+    },
+    {
+      "_id": "prod_6",
+      "name": "Royal Wedding Story Frame",
+      "category": "Wedding Frames",
+      "price": 599,
+      "originalPrice": 1199,
+      "description": "Grand wedding portrait frame with golden leaf filigree border.",
+      "dimensions": "20 × 30 inch",
+      "imageUrl": "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80",
+      "frameType": "Golden Filigree",
+      "isFeatured": true,
+      "badge": "WEDDING SPECIAL",
+      "availableSizes": [
+        {
+          "label": "20 × 30 inch",
+          "priceAdjustment": 0
+        },
+        {
+          "label": "24 × 36 inch",
+          "priceAdjustment": 300
+        }
+      ]
+    }
+  ],
+  "orders": [
+    {
+      "_id": "ord_1790232012286",
+      "orderId": "AMMU1001",
+      "userId": null,
+      "customerName": "Deepika",
+      "phone": "9876543210",
+      "email": "deepika@example.com",
+      "items": [
+        {
+          "size": "4 � 6",
+          "quantity": 1,
+          "filter": "Original",
+          "price": 1,
+          "productName": "Mini Memory Frame (?1 Test Order)",
+          "frame": "Classic"
+        }
+      ],
+      "totalAmount": 1,
+      "shippingAddress": {
+        "street": "Mount Road",
+        "doorNo": "Door #42",
+        "pincode": "600001",
+        "state": "Tamil Nadu",
+        "city": "Chennai"
+      },
+      "paymentMethod": "Test Order",
+      "paymentStatus": "Paid",
+      "orderStatus": "Confirmed",
+      "createdAt": "2026-09-24T06:40:12.287Z",
+      "updatedAt": "2026-09-24T06:48:56.216Z"
+    }
+  ]
+}
