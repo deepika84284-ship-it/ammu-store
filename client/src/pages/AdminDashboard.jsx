@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShieldCheck, Package, ShoppingBag, CheckCircle, Clock, Truck, RefreshCw, Eye, Check, X, Search, Filter, QrCode, AlertTriangle, ExternalLink } from 'lucide-react';
+import { ShieldCheck, Package, ShoppingBag, CheckCircle, Clock, Truck, RefreshCw, Eye, Check, X, Search, Filter, QrCode, AlertTriangle, ExternalLink, BookOpen, Image as ImageIcon } from 'lucide-react';
 import { getAdminOrders, updateOrderStatus, verifyPaymentApi } from '../services/api';
 import { useShop } from '../context/ShopContext';
 
@@ -79,9 +79,9 @@ const AdminDashboard = () => {
         <div>
           <div className="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-widest">
             <ShieldCheck className="w-4 h-4" />
-            <span>AMMU FRAME STORE ADMIN DASHBOARD</span>
+            <span>AMMU FRAME & ALBUM STORE ADMIN DASHBOARD</span>
           </div>
-          <h1 className="font-serif text-3xl font-bold text-white mt-1">UPI Payment & Order Verification</h1>
+          <h1 className="font-serif text-3xl font-bold text-white mt-1">Photo Album Orders & Verification</h1>
         </div>
 
         <div className="flex items-center gap-3">
@@ -89,7 +89,7 @@ const AdminDashboard = () => {
             <RefreshCw className="w-3.5 h-3.5" /> Refresh Orders
           </button>
           <button onClick={() => navigate('/admin/products')} className="btn-primary py-2 px-4 text-xs">
-            Manage Products
+            Manage Catalog
           </button>
         </div>
       </div>
@@ -97,7 +97,7 @@ const AdminDashboard = () => {
       {/* Analytics Counter Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
         <div className="glass-panel p-4 rounded-2xl border border-white/10 space-y-1">
-          <span className="text-[10px] text-gray-400 uppercase font-semibold">TOTAL ORDERS</span>
+          <span className="text-[10px] text-gray-400 uppercase font-semibold">TOTAL ALBUMS</span>
           <div className="text-2xl font-bold font-serif text-white">{stats.total}</div>
         </div>
 
@@ -148,12 +148,12 @@ const AdminDashboard = () => {
       {loading ? (
         <div className="py-20 text-center space-y-3">
           <RefreshCw className="w-8 h-8 text-[var(--primary-gold)] animate-spin mx-auto" />
-          <p className="text-xs text-gray-400">Loading orders from MongoDB database...</p>
+          <p className="text-xs text-gray-400">Loading album orders from database...</p>
         </div>
       ) : orders.length === 0 ? (
         <div className="glass-panel p-12 text-center text-gray-400 space-y-2">
           <Package className="w-10 h-10 mx-auto text-gray-600" />
-          <p className="text-base font-semibold text-white">No orders matching filter "{filterStatus}"</p>
+          <p className="text-base font-semibold text-white">No album orders matching filter "{filterStatus}"</p>
         </div>
       ) : (
         <div className="glass-panel rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
@@ -163,11 +163,13 @@ const AdminDashboard = () => {
                 <tr>
                   <th className="p-4">Order ID</th>
                   <th className="p-4">Customer</th>
-                  <th className="p-4">Payment Method</th>
-                  <th className="p-4">UTR / UTR ID</th>
+                  <th className="p-4">Album Name</th>
+                  <th className="p-4">Photos</th>
+                  <th className="p-4">Size & Style</th>
+                  <th className="p-4">Amount</th>
                   <th className="p-4">Payment Status</th>
                   <th className="p-4">Order Status</th>
-                  <th className="p-4 text-center">Payment Verification Actions</th>
+                  <th className="p-4 text-center">Inspect Album</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
@@ -185,19 +187,39 @@ const AdminDashboard = () => {
                       <div className="text-[10px] text-gray-500">{ord.phone}</div>
                     </td>
 
-                    {/* Payment Method */}
-                    <td className="p-4 font-semibold text-gray-200">
-                      {ord.paymentMethod}
+                    {/* Album Name & Cover */}
+                    <td className="p-4 flex items-center gap-3">
+                      {ord.coverPhoto || ord.items[0]?.customizedImageUrl ? (
+                        <img 
+                          src={ord.coverPhoto || ord.items[0]?.customizedImageUrl} 
+                          alt="Cover" 
+                          className="w-10 h-12 object-cover rounded border border-amber-400/40 flex-shrink-0"
+                        />
+                      ) : null}
+                      <span className="font-semibold text-white truncate max-w-[140px]">
+                        {ord.albumTitle || ord.items[0]?.productName}
+                      </span>
                     </td>
 
-                    {/* UTR / Transaction ID */}
-                    <td className="p-4 font-mono text-amber-200">
-                      {ord.utrNumber ? ord.utrNumber : <span className="text-gray-500 italic">N/A</span>}
+                    {/* Photo Count */}
+                    <td className="p-4 font-bold text-amber-200">
+                      {ord.photoCount || (ord.photos ? ord.photos.length : 1)} Photos
                     </td>
 
-                    {/* Payment Status Badge */}
+                    {/* Size & Style */}
+                    <td className="p-4 text-gray-300 space-y-0.5">
+                      <div>{ord.albumSize || ord.items[0]?.size}</div>
+                      <div className="text-[10px] text-gray-400">{ord.albumStyle || ord.items[0]?.frame}</div>
+                    </td>
+
+                    {/* Amount */}
+                    <td className="p-4 font-extrabold text-sm text-white">
+                      ₹{ord.totalAmount}
+                    </td>
+
+                    {/* Payment Status */}
                     <td className="p-4">
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase inline-block ${
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase inline-block ${
                         ord.paymentStatus === 'Verification Pending' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30 animate-pulse' :
                         ord.paymentStatus === 'Paid' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' :
                         ord.paymentStatus === 'Payment Rejected' ? 'bg-red-500/20 text-red-300 border border-red-500/30' :
@@ -208,42 +230,18 @@ const AdminDashboard = () => {
                     </td>
 
                     {/* Order Status */}
-                    <td className="p-4">
-                      <span className="font-bold text-gray-200">
-                        {ord.orderStatus}
-                      </span>
+                    <td className="p-4 font-bold text-gray-200">
+                      {ord.orderStatus}
                     </td>
 
-                    {/* Verification Buttons */}
+                    {/* Action Controls */}
                     <td className="p-4 text-center">
-                      <div className="flex items-center justify-center gap-2 flex-wrap">
-                        {ord.paymentStatus === 'Verification Pending' ? (
-                          <>
-                            <button
-                              onClick={() => handlePaymentVerify(ord._id, 'confirm')}
-                              className="px-3 py-1 rounded-full bg-emerald-500 text-black font-bold text-[10px] hover:bg-emerald-400 transition-all shadow"
-                            >
-                              [Confirm Payment]
-                            </button>
-                            <button
-                              onClick={() => handlePaymentVerify(ord._id, 'reject')}
-                              className="px-3 py-1 rounded-full bg-red-500/20 text-red-300 border border-red-500/40 font-bold text-[10px] hover:bg-red-500/30 transition-all"
-                            >
-                              [Reject Payment]
-                            </button>
-                          </>
-                        ) : (
-                          <span className="text-[10px] text-gray-400 italic">Verified</span>
-                        )}
-
-                        <button
-                          onClick={() => setSelectedOrder(ord)}
-                          className="p-1.5 rounded-full bg-white/10 text-gray-300 hover:text-white hover:bg-white/20 transition-all"
-                          title="Inspect Order Details"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
+                      <button
+                        onClick={() => setSelectedOrder(ord)}
+                        className="btn-primary py-1.5 px-3 text-[11px] justify-center"
+                      >
+                        <Eye className="w-3.5 h-3.5" /> Inspect Photos
+                      </button>
                     </td>
 
                   </tr>
@@ -254,10 +252,10 @@ const AdminDashboard = () => {
         </div>
       )}
 
-      {/* Detailed Order Inspector Modal */}
+      {/* FULL ALBUM INSPECTOR & PHOTO ORDER VIEW MODAL */}
       {selectedOrder && (
         <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="glass-panel-gold max-w-2xl w-full p-6 sm:p-8 rounded-3xl space-y-6 border border-amber-400/40 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+          <div className="glass-panel-gold max-w-4xl w-full p-6 sm:p-8 rounded-3xl space-y-6 border border-amber-400/40 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             
             <button 
               onClick={() => setSelectedOrder(null)} 
@@ -266,17 +264,70 @@ const AdminDashboard = () => {
               <X className="w-5 h-5" />
             </button>
 
-            <div className="border-b border-white/10 pb-4">
-              <span className="badge-gold">INSPECT ORDER #{selectedOrder.orderId}</span>
-              <h2 className="font-serif text-2xl font-bold text-white mt-1">Payment Verification & Details</h2>
-              <p className="text-xs text-gray-400">Placed: {new Date(selectedOrder.createdAt).toLocaleString()}</p>
+            <div className="border-b border-white/10 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <span className="badge-gold">INSPECT ALBUM #{selectedOrder.orderId}</span>
+                <h2 className="font-serif text-2xl font-bold text-white mt-1">
+                  "{selectedOrder.albumTitle}" ({selectedOrder.photoCount || (selectedOrder.photos ? selectedOrder.photos.length : 1)} Photos)
+                </h2>
+                <p className="text-xs text-gray-400">Placed: {new Date(selectedOrder.createdAt).toLocaleString()}</p>
+              </div>
+
+              <div className="text-right">
+                <span className="text-xs text-gray-400 block">Total Amount</span>
+                <span className="font-serif font-extrabold text-2xl gold-gradient-text">₹{selectedOrder.totalAmount}</span>
+              </div>
             </div>
 
-            {/* Payment Verification Box */}
+            {/* SECTION 1: CUSTOMER UPLOADED PHOTOS IN EXACT ORDER */}
+            <div className="space-y-3 bg-black/40 p-5 rounded-2xl border border-white/10">
+              <div className="flex items-center justify-between">
+                <h4 className="font-serif font-bold text-amber-300 text-sm flex items-center gap-1.5">
+                  <ImageIcon className="w-4 h-4 text-amber-400" />
+                  Uploaded Photos Sequence ({selectedOrder.photos?.length || 1} Photos)
+                </h4>
+                <span className="text-[10px] text-gray-400">Sequence selected by customer</span>
+              </div>
+
+              {selectedOrder.photos && selectedOrder.photos.length > 0 ? (
+                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3 pt-2">
+                  {selectedOrder.photos.map((photo, pIdx) => (
+                    <div key={pIdx} className="relative aspect-square rounded-xl overflow-hidden frame-border-gold shadow bg-black group">
+                      <img src={photo.url} alt={`Photo ${pIdx + 1}`} className="w-full h-full object-cover" />
+                      <div className="absolute top-1.5 left-1.5 bg-black/80 backdrop-blur-md px-1.5 py-0.5 rounded text-[9px] text-amber-300 font-bold border border-amber-400/30">
+                        #{photo.order || pIdx + 1}
+                      </div>
+                      <a 
+                        href={photo.url} 
+                        target="_blank" 
+                        rel="noreferrer" 
+                        className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-amber-300 text-xs font-semibold"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex items-center gap-4 pt-2">
+                  {selectedOrder.items[0]?.customizedImageUrl && (
+                    <div className="w-20 h-24 rounded-lg overflow-hidden frame-border-gold flex-shrink-0">
+                      <img src={selectedOrder.items[0].customizedImageUrl} alt="Photo" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <div className="text-xs space-y-1">
+                    <p className="text-white font-semibold">{selectedOrder.items[0]?.productName}</p>
+                    <p className="text-gray-400">{selectedOrder.items[0]?.frame} • {selectedOrder.items[0]?.size}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* SECTION 2: PAYMENT VERIFICATION & UTR */}
             <div className="p-4 rounded-2xl bg-black/60 border border-amber-400/30 space-y-3 text-xs text-gray-200">
               <h4 className="font-serif font-bold text-amber-300 text-sm flex items-center gap-1.5">
                 <QrCode className="w-4 h-4 text-amber-400" />
-                UPI Payment Information
+                Payment Verification
               </h4>
 
               <div className="grid grid-cols-2 gap-3 pt-1">
@@ -301,13 +352,13 @@ const AdminDashboard = () => {
                 </div>
 
                 <div>
-                  <span className="text-[10px] text-gray-400 block font-semibold">Order Total Amount:</span>
-                  <strong className="text-white text-sm font-serif">₹{selectedOrder.totalAmount}</strong>
+                  <span className="text-[10px] text-gray-400 block font-semibold">Order Status:</span>
+                  <strong className="text-white text-sm">{selectedOrder.orderStatus}</strong>
                 </div>
               </div>
 
-              {/* Payment Screenshot Preview */}
-              {selectedOrder.paymentScreenshotUrl ? (
+              {/* Payment Screenshot */}
+              {selectedOrder.paymentScreenshotUrl && (
                 <div className="pt-2">
                   <span className="text-[10px] text-gray-400 block font-semibold mb-1">Payment Screenshot:</span>
                   <a href={selectedOrder.paymentScreenshotUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 p-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs text-amber-200 border border-white/10">
@@ -315,13 +366,9 @@ const AdminDashboard = () => {
                     <span>View Customer Payment Screenshot</span>
                   </a>
                 </div>
-              ) : (
-                <div className="text-[11px] text-gray-500 italic pt-1">
-                  No payment screenshot uploaded by customer.
-                </div>
               )}
 
-              {/* Verification Action Buttons */}
+              {/* Verification Buttons */}
               {selectedOrder.paymentStatus === 'Verification Pending' && (
                 <div className="flex items-center gap-3 pt-3 border-t border-white/10">
                   <button 
@@ -341,41 +388,26 @@ const AdminDashboard = () => {
               )}
             </div>
 
-            {/* Customer & Address Details */}
+            {/* SECTION 3: CUSTOMER & ADDRESS DETAILS */}
             <div className="grid grid-cols-2 gap-4 text-xs text-gray-300 bg-black/40 p-4 rounded-xl">
               <div>
-                <p className="text-[10px] text-amber-400 font-bold uppercase">Customer:</p>
+                <p className="text-[10px] text-amber-400 font-bold uppercase">Customer Info:</p>
                 <p className="font-semibold text-white text-sm">{selectedOrder.customerName}</p>
                 <p>Phone: <strong>{selectedOrder.phone}</strong></p>
                 <p>Email: {selectedOrder.email}</p>
               </div>
 
               <div>
-                <p className="text-[10px] text-amber-400 font-bold uppercase">Shipping Destination:</p>
+                <p className="text-[10px] text-amber-400 font-bold uppercase">Shipping Address:</p>
                 <p>{selectedOrder.shippingAddress.doorNo}, {selectedOrder.shippingAddress.street}</p>
                 <p>{selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state} - {selectedOrder.shippingAddress.pincode}</p>
               </div>
             </div>
 
-            {/* Photo & Frame Specs */}
-            <div className="flex items-center gap-6 bg-black/50 p-4 rounded-xl border border-white/10">
-              {selectedOrder.items[0]?.customizedImageUrl && (
-                <div className="w-24 h-28 rounded-lg overflow-hidden frame-border-gold flex-shrink-0">
-                  <img src={selectedOrder.items[0].customizedImageUrl} alt="Custom Frame" className="w-full h-full object-cover" />
-                </div>
-              )}
-              <div className="text-xs space-y-1">
-                <h4 className="font-serif font-bold text-white text-base">{selectedOrder.items[0]?.productName}</h4>
-                <p className="text-gray-300">🖼️ Frame Style: <strong>{selectedOrder.items[0]?.frame}</strong></p>
-                <p className="text-gray-300">📐 Size: <strong>{selectedOrder.items[0]?.size}</strong></p>
-                <p className="text-gray-300">🎨 Filter: <strong>{selectedOrder.items[0]?.filter}</strong></p>
-              </div>
-            </div>
-
-            {/* Standard Order Status Controls */}
+            {/* SECTION 4: ORDER STATUS UPDATE */}
             <div className="space-y-2 pt-2 border-t border-white/10">
               <label className="block text-xs font-semibold text-white uppercase tracking-wider">
-                Order Delivery Status:
+                Update Order Lifecycle Status:
               </label>
               <div className="flex flex-wrap gap-2">
                 {['Pending', 'Confirmed', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled'].map((st) => (

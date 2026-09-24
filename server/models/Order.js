@@ -1,5 +1,12 @@
 const mongoose = require('mongoose');
 
+const albumPhotoSchema = new mongoose.Schema({
+  url: { type: String, required: true },
+  order: { type: Number, default: 1 },
+  caption: { type: String, default: '' },
+  filter: { type: String, default: 'Original' }
+}, { _id: false });
+
 const orderItemSchema = new mongoose.Schema({
   productId: {
     type: mongoose.Schema.Types.Mixed,
@@ -20,11 +27,11 @@ const orderItemSchema = new mongoose.Schema({
   },
   frame: {
     type: String,
-    default: 'Classic Wood'
+    default: 'Classic'
   },
   size: {
     type: String,
-    default: '12 × 18'
+    default: '8 × 10 inch'
   },
   filter: {
     type: String,
@@ -42,7 +49,7 @@ const orderItemSchema = new mongoose.Schema({
     type: String,
     default: ''
   }
-});
+}, { _id: false });
 
 const shippingAddressSchema = new mongoose.Schema({
   doorNo: { type: String, required: true },
@@ -77,6 +84,27 @@ const orderSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  albumTitle: {
+    type: String,
+    default: 'Our Beautiful Memories'
+  },
+  albumSize: {
+    type: String,
+    default: '8 × 10 inch'
+  },
+  albumStyle: {
+    type: String,
+    default: 'Classic'
+  },
+  photoCount: {
+    type: Number,
+    default: 1
+  },
+  coverPhoto: {
+    type: String,
+    default: ''
+  },
+  photos: [albumPhotoSchema],
   items: [orderItemSchema],
   totalAmount: {
     type: Number,

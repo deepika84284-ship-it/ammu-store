@@ -6,6 +6,7 @@ import Footer from './components/Footer';
 
 // Pages
 import HomePage from './pages/HomePage';
+import AlbumCreatorPage from './pages/AlbumCreatorPage';
 import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
 import OrderSuccessPage from './pages/OrderSuccessPage';
@@ -25,6 +26,7 @@ function App() {
           <main className="flex-grow">
             <Routes>
               <Route path="/" element={<HomePage />} />
+              <Route path="/create-album" element={<AlbumCreatorPage />} />
               <Route path="/cart" element={<CartPage />} />
               <Route path="/checkout" element={<CheckoutPage />} />
               <Route path="/order-success/:id" element={<OrderSuccessPage />} />

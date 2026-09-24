@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingBag, Sparkles, User, ShieldCheck, Heart, Frame } from 'lucide-react';
+import { ShoppingBag, Sparkles, User, ShieldCheck, Heart, Frame, BookOpen, Plus } from 'lucide-react';
 import { useShop } from '../context/ShopContext';
 
 const Navbar = () => {
@@ -25,7 +25,7 @@ const Navbar = () => {
               AMMU
             </div>
             <div className="text-[8px] sm:text-[10px] tracking-[0.2em] text-[var(--text-secondary)] uppercase font-semibold truncate">
-              FRAME STORE
+              FRAME & ALBUM STORE
             </div>
           </div>
         </Link>
@@ -33,19 +33,25 @@ const Navbar = () => {
         {/* Navigation Links */}
         <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-medium text-[var(--text-secondary)]">
           <Link to="/" className="hover:text-[var(--primary-gold)] transition-colors">
-            Showroom
+            Home
           </Link>
-          <a href="#showroom-grid" className="hover:text-[var(--primary-gold)] transition-colors">
-            Explore Frames
-          </a>
-          <Link to="/#mini-memory" className="flex items-center gap-1 text-[var(--primary-gold)] hover:underline font-semibold">
-            <Sparkles className="w-4 h-4 animate-pulse" />
-            ₹1 Test Memory
+
+          {/* Primary CTA Link: Create Album */}
+          <Link to="/create-album" className="flex items-center gap-1.5 text-amber-300 hover:text-white font-bold bg-amber-500/10 px-3.5 py-1.5 rounded-full border border-amber-500/30">
+            <BookOpen className="w-4 h-4 text-amber-400 animate-pulse" />
+            <span>CREATE ALBUM</span>
           </Link>
+
+          <Link to="/create-album" className="flex items-center gap-1 text-[var(--primary-gold)] hover:underline font-semibold">
+            <Sparkles className="w-4 h-4" />
+            ₹1 Test Album
+          </Link>
+          
           <Link to="/my-orders" className="hover:text-[var(--primary-gold)] transition-colors flex items-center gap-1">
             <Heart className="w-4 h-4" />
             Track Order
           </Link>
+
           {user && user.role === 'admin' && (
             <Link to="/admin/dashboard" className="text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-1 font-bold">
               <ShieldCheck className="w-4 h-4" />
@@ -56,6 +62,16 @@ const Navbar = () => {
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+          
+          {/* Mobile Quick Create Album Button */}
+          <Link 
+            to="/create-album"
+            className="md:hidden flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-amber-400 text-black font-bold text-[11px] shadow"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Album</span>
+          </Link>
+
           <Link 
             to="/cart" 
             className="relative p-2 sm:p-2.5 rounded-full bg-white/5 border border-[var(--border-glass)] hover:border-[var(--primary-gold)] hover:bg-white/10 transition-all text-white flex items-center justify-center"

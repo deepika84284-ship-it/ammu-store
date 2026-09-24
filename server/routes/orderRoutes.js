@@ -4,12 +4,13 @@ const dbStore = require('../utils/dbStore');
 const { protect, adminOnly } = require('../middleware/auth');
 
 // @route   POST /api/orders
-// @desc    Create a new order (customer or guest)
+// @desc    Create a new photo album or frame order
 router.post('/', async (req, res) => {
   try {
     const { 
       customerName, phone, email, items, totalAmount, shippingAddress, 
-      paymentMethod, utrNumber, paymentScreenshotUrl, userId 
+      paymentMethod, utrNumber, paymentScreenshotUrl, userId,
+      albumTitle, albumSize, albumStyle, photoCount, coverPhoto, photos 
     } = req.body;
 
     if (!customerName || !phone || !email || !items || items.length === 0 || !shippingAddress) {
@@ -17,7 +18,7 @@ router.post('/', async (req, res) => {
     }
 
     if (paymentMethod === 'UPI Payment' && !utrNumber) {
-      return res.status(400).json({ success: false, message: 'Please enter your UPI Transaction ID / UTR Number' });
+      return res.status(400).json({ success: false, message: 'Please enter your 12-digit UPI Transaction ID / UTR Number' });
     }
 
     const allOrders = await dbStore.getOrders();
@@ -31,7 +32,7 @@ router.post('/', async (req, res) => {
     } else if (paymentMethod === 'Cash on Delivery') {
       paymentStatus = 'Pending';
     } else if (paymentMethod === 'UPI Payment') {
-      paymentStatus = 'Verification Pending'; // Crucial requirement
+      paymentStatus = 'Verification Pending';
     }
 
     const orderPayload = {
@@ -40,6 +41,12 @@ router.post('/', async (req, res) => {
       customerName,
       phone,
       email,
+      albumTitle: albumTitle || items[0]?.productName || 'Custom Photo Album',
+      albumSize: albumSize || items[0]?.size || '8 × 10 inch',
+      albumStyle: albumStyle || items[0]?.frame || 'Classic',
+      photoCount: photoCount || (photos ? photos.length : 1),
+      coverPhoto: coverPhoto || (photos && photos.length > 0 ? photos[0].url : items[0]?.customizedImageUrl || ''),
+      photos: photos || [],
       items,
       totalAmount,
       shippingAddress,
@@ -51,15 +58,16 @@ router.post('/', async (req, res) => {
     };
 
     const newOrder = await dbStore.createOrder(orderPayload);
-    console.log(`[Order Placed] ID: ${newOrder.orderId}, Payment Method: ${paymentMethod}, Payment Status: ${paymentStatus}`);
+    console.log(`[Album Order Placed] ID: ${newOrder.orderId}, Title: ${newOrder.albumTitle}, Photos: ${newOrder.photoCount}, Payment: ${paymentMethod}`);
 
     res.status(201).json({
       success: true,
-      message: 'Order placed successfully!',
+      message: 'Album order placed successfully!',
       order: newOrder
     });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    console.error('[Order Controller Error]:', error);
+    res.status(400).json({ success: false, message: error.message || 'Failed to place album order' });
   }
 });
 
@@ -132,7 +140,6 @@ router.patch('/admin/:id/status', protect, adminOnly, async (req, res) => {
 });
 
 // @route   PATCH /api/admin/orders/:id/payment-verify
-// @desc    Admin confirm or reject UPI payment
 router.patch('/admin/:id/payment-verify', protect, adminOnly, async (req, res) => {
   try {
     const { action } = req.body; // 'confirm' | 'reject'
