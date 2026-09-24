@@ -4,9 +4,10 @@
   "description": "AMMU FRAME STORE - Your Memories. Our Frames. One Beautiful Story.",
   "main": "server/server.js",
   "scripts": {
+    "dev": "npm run dev --prefix client",
     "start": "node server/server.js",
     "postinstall": "cd client && npm install && cd ../server && npm install",
-    "server": "npm run dev --prefix server",
+    "server": "node server/server.js",
     "client": "npm run dev --prefix client",
     "build": "cd client && npm install && npm run build"
   },

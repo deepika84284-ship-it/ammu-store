@@ -4,7 +4,7 @@
       "_id": "user_admin_1",
       "name": "Ammu Admin",
       "email": "admin@ammuframestore.com",
-      "password": "$2a$10$CxH38OHWqXoe8TXuhLRQcOZbKVrgAE563y6Rm58j5mlherooAtzle",
+      "password": "$2a$10$N8eDGe1vI41.Ws7tV8Cet.hBtBVS.KvC5lwwOgrYFTdCN7pm79u1u",
       "phone": "9876543210",
       "role": "admin",
       "address": {
@@ -111,56 +111,6 @@
   ],
   "products": [
     {
-      "_id": "prod_1",
-      "name": "Mini Memory Frame (₹1 Test Order)",
-      "category": "Mini Memories",
-      "price": 1,
-      "originalPrice": 49,
-      "description": "Create a tiny digital memory frame! Perfect for instant testing of photo upload, live customization, and complete order workflow verification.",
-      "dimensions": "4 × 6 inch",
-      "imageUrl": "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80",
-      "frameType": "Classic",
-      "isFeatured": true,
-      "badge": "⚡ TEST FLOW ₹1",
-      "availableSizes": [
-        {
-          "label": "4 × 6 inch",
-          "priceAdjustment": 0
-        },
-        {
-          "label": "5 × 7 inch",
-          "priceAdjustment": 10
-        }
-      ]
-    },
-    {
-      "_id": "prod_2",
-      "name": "Classic Memory Frame",
-      "category": "Classic Frames",
-      "price": 99,
-      "originalPrice": 199,
-      "description": "Elegant minimalist matte frame with protective cover. Turns any snapshot into gallery art.",
-      "dimensions": "8 × 10 inch",
-      "imageUrl": "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=800&q=80",
-      "frameType": "Classic Oak",
-      "isFeatured": true,
-      "badge": "BESTSELLER",
-      "availableSizes": [
-        {
-          "label": "8 × 10 inch",
-          "priceAdjustment": 0
-        },
-        {
-          "label": "10 × 12 inch",
-          "priceAdjustment": 50
-        },
-        {
-          "label": "12 × 18 inch",
-          "priceAdjustment": 100
-        }
-      ]
-    },
-    {
       "_id": "prod_3",
       "name": "Love & Togetherness Frame",
       "category": "Couple Frames",
@@ -259,6 +209,75 @@
   ],
   "orders": [
     {
+      "_id": "ord_1790242740283",
+      "orderId": "AMMU1007",
+      "userId": null,
+      "customerName": "Ammu Deepika",
+      "phone": "9789719885",
+      "email": "deepika84284@gmail.com",
+      "items": [
+        {
+          "albumId": "album_1790242642223_gynj",
+          "productId": "album_test_1",
+          "productName": "Our Beautiful Memories (Test Album (₹1))",
+          "quantity": 1,
+          "price": 1,
+          "frame": "Classic",
+          "size": "4 × 6 inch",
+          "filter": "Original",
+          "originalImageUrl": "https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=800&q=80",
+          "customizedImageUrl": "https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=800&q=80",
+          "customText": "Our Beautiful Memories",
+          "albumTitle": "Our Beautiful Memories",
+          "albumSize": "4 × 6 inch",
+          "albumStyle": "Classic",
+          "photoCount": 5,
+          "coverPhoto": "https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=800&q=80",
+          "photos": [
+            {
+              "url": "https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=800&q=80",
+              "order": 1
+            },
+            {
+              "url": "https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=800&q=80",
+              "order": 2
+            },
+            {
+              "url": "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80",
+              "order": 3
+            },
+            {
+              "url": "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80",
+              "order": 4
+            },
+            {
+              "url": "/uploads/photo_1790242650874_568630745.png",
+              "order": 5
+            }
+          ],
+          "cartItemId": "album_1790242642223_gynj"
+        }
+      ],
+      "totalAmount": 1,
+      "shippingAddress": {
+        "doorNo": "3/46 west street perngulam",
+        "street": "mariyammankovil",
+        "area": "perungulam",
+        "city": "rmd",
+        "district": "Chennai",
+        "state": "Tamil Nadu",
+        "pincode": "623536",
+        "deliveryInstructions": ""
+      },
+      "paymentMethod": "Cash on Delivery",
+      "utrNumber": "",
+      "paymentScreenshotUrl": "",
+      "paymentStatus": "Pending",
+      "orderStatus": "Confirmed",
+      "createdAt": "2026-09-24T09:39:00.284Z",
+      "updatedAt": "2026-09-24T09:47:05.425Z"
+    },
+    {
       "_id": "ord_1790240714782",
       "orderId": "AMMU1006",
       "userId": null,
@@ -295,9 +314,9 @@
       "utrNumber": "",
       "paymentScreenshotUrl": "",
       "paymentStatus": "Pending",
-      "orderStatus": "Pending",
+      "orderStatus": "Confirmed",
       "createdAt": "2026-09-24T09:05:14.782Z",
-      "updatedAt": "2026-09-24T09:05:14.782Z"
+      "updatedAt": "2026-09-24T09:48:44.965Z"
     },
     {
       "_id": "ord_1790240235796",
@@ -391,9 +410,9 @@
       "utrNumber": "426819024812",
       "paymentScreenshotUrl": "",
       "paymentStatus": "Verification Pending",
-      "orderStatus": "Pending",
+      "orderStatus": "Confirmed",
       "createdAt": "2026-09-24T08:06:54.601Z",
-      "updatedAt": "2026-09-24T08:06:54.601Z"
+      "updatedAt": "2026-09-24T09:49:01.962Z"
     },
     {
       "_id": "ord_1790235103171",
