@@ -4,9 +4,15 @@ const getBaseUrl = () => {
   if (import.meta.env.VITE_API_URL) {
     return import.meta.env.VITE_API_URL;
   }
-  if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-    return 'http://localhost:5000/api';
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname;
+    // If running on localhost or local Wi-Fi IP address (e.g. 192.168.x.x, 10.x.x.x)
+    if (host === 'localhost' || host === '127.0.0.1' || host.startsWith('192.168.') || host.startsWith('10.') || host.startsWith('172.')) {
+      const port = import.meta.env.VITE_BACKEND_PORT || 5000;
+      return `http://${host}:${port}/api`;
+    }
   }
+  // Production fallback on Vercel deployment (uses relative /api - no port needed!)
   return '/api';
 };
 
