@@ -69,7 +69,37 @@ export const ShopProvider = ({ children }) => {
     setIsDetailOpen(false);
   };
 
+  const saveAlbumToCart = (albumItem) => {
+    const albumId = albumItem.albumId || `album_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+    const cartItemId = albumId;
+    const newItem = {
+      ...albumItem,
+      albumId,
+      cartItemId,
+      quantity: 1
+    };
+
+    setCart((prev) => {
+      const existingIdx = prev.findIndex((i) => i.albumId === albumId || i.cartItemId === cartItemId);
+      if (existingIdx !== -1) {
+        // UPDATE existing album in place - DO NOT DUPLICATE
+        const updated = [...prev];
+        updated[existingIdx] = newItem;
+        return updated;
+      } else {
+        // ADD new distinct album
+        return [...prev, newItem];
+      }
+    });
+
+    showToast(`Saved "${newItem.albumTitle}" to cart! 🖼️`, 'success');
+    return albumId;
+  };
+
   const addToCart = (item) => {
+    if (item.albumId || item.photos) {
+      return saveAlbumToCart(item);
+    }
     const cartItemId = `${item.productId}_${item.frame}_${item.size}_${Date.now()}`;
     const newItem = { ...item, cartItemId };
 
@@ -78,7 +108,7 @@ export const ShopProvider = ({ children }) => {
   };
 
   const removeFromCart = (cartItemId) => {
-    setCart((prev) => prev.filter((i) => i.cartItemId !== cartItemId));
+    setCart((prev) => prev.filter((i) => i.cartItemId !== cartItemId && i.albumId !== cartItemId));
     showToast('Item removed from cart', 'info');
   };
 
@@ -87,13 +117,14 @@ export const ShopProvider = ({ children }) => {
   };
 
   const getCartTotal = () => {
-    return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    return cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
   };
 
   return (
     <ShopContext.Provider value={{
       cart,
       addToCart,
+      saveAlbumToCart,
       removeFromCart,
       clearCart,
       getCartTotal,

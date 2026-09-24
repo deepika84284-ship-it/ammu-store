@@ -1,6 +1,16 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const getBaseUrl = () => {
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+    return 'http://localhost:5000/api';
+  }
+  return '/api';
+};
+
+const API_BASE_URL = getBaseUrl();
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -9,14 +19,32 @@ const api = axios.create({
   }
 });
 
-// Attach JWT token if stored
+// Attach JWT token if stored & Log Request details for dev
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('ammu_token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  console.log(`[API Request]: ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`, config.data || '');
   return config;
 }, (error) => Promise.reject(error));
+
+// Response interceptor for detailed developer logging
+api.interceptors.response.use(
+  (response) => {
+    console.log(`[API Response Success]: ${response.config.method?.toUpperCase()} ${response.config.url}`, response.status, response.data);
+    return response;
+  },
+  (error) => {
+    console.error(`[API Response Error]: ${error.config?.method?.toUpperCase()} ${error.config?.url}`, {
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message,
+      baseURL: error.config?.baseURL
+    });
+    return Promise.reject(error);
+  }
+);
 
 // API Helper Endpoints
 export const getProducts = async (params = {}) => {

@@ -13,11 +13,23 @@ router.post('/', async (req, res) => {
       albumTitle, albumSize, albumStyle, photoCount, coverPhoto, photos 
     } = req.body;
 
+    console.log('[API Order Request Received]:', {
+      customerName,
+      phone,
+      email,
+      paymentMethod,
+      totalAmount,
+      itemsCount: items ? items.length : 0,
+      albumTitle: albumTitle || (items && items[0] ? items[0].albumTitle : undefined)
+    });
+
     if (!customerName || !phone || !email || !items || items.length === 0 || !shippingAddress) {
-      return res.status(400).json({ success: false, message: 'Please provide all required checkout details' });
+      console.warn('[Order Validation Failed]: Missing required fields');
+      return res.status(400).json({ success: false, message: 'Please provide customer name, contact details, shipping address, and at least 1 cart item' });
     }
 
     if (paymentMethod === 'UPI Payment' && !utrNumber) {
+      console.warn('[Order Validation Failed]: Missing UTR number for UPI Payment');
       return res.status(400).json({ success: false, message: 'Please enter your 12-digit UPI Transaction ID / UTR Number' });
     }
 
@@ -35,18 +47,19 @@ router.post('/', async (req, res) => {
       paymentStatus = 'Verification Pending';
     }
 
+    const firstItem = items[0] || {};
     const orderPayload = {
       orderId,
       userId: userId || null,
       customerName,
       phone,
       email,
-      albumTitle: albumTitle || items[0]?.productName || 'Custom Photo Album',
-      albumSize: albumSize || items[0]?.size || '8 × 10 inch',
-      albumStyle: albumStyle || items[0]?.frame || 'Classic',
-      photoCount: photoCount || (photos ? photos.length : 1),
-      coverPhoto: coverPhoto || (photos && photos.length > 0 ? photos[0].url : items[0]?.customizedImageUrl || ''),
-      photos: photos || [],
+      albumTitle: albumTitle || firstItem.albumTitle || firstItem.productName || 'Custom Photo Album',
+      albumSize: albumSize || firstItem.albumSize || firstItem.size || '8 × 10 inch',
+      albumStyle: albumStyle || firstItem.albumStyle || firstItem.frame || 'Classic',
+      photoCount: photoCount || (photos ? photos.length : (firstItem.photos ? firstItem.photos.length : 1)),
+      coverPhoto: coverPhoto || (photos && photos.length > 0 ? photos[0].url : (firstItem.coverPhoto || firstItem.customizedImageUrl || '')),
+      photos: photos && photos.length > 0 ? photos : (firstItem.photos || []),
       items,
       totalAmount,
       shippingAddress,
@@ -58,7 +71,7 @@ router.post('/', async (req, res) => {
     };
 
     const newOrder = await dbStore.createOrder(orderPayload);
-    console.log(`[Album Order Placed] ID: ${newOrder.orderId}, Title: ${newOrder.albumTitle}, Photos: ${newOrder.photoCount}, Payment: ${paymentMethod}`);
+    console.log(`[Album Order Placed Successfully] Order ID: ${newOrder.orderId}, Title: "${newOrder.albumTitle}", Total: ₹${newOrder.totalAmount}, Payment: ${paymentMethod}`);
 
     res.status(201).json({
       success: true,
@@ -66,7 +79,7 @@ router.post('/', async (req, res) => {
       order: newOrder
     });
   } catch (error) {
-    console.error('[Order Controller Error]:', error);
+    console.error('[Order Controller Error Exception]:', error);
     res.status(400).json({ success: false, message: error.message || 'Failed to place album order' });
   }
 });

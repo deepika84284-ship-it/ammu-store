@@ -1,7 +1,7 @@
-import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, Plus, Trash2, ArrowLeftRight, Edit3, BookOpen, Sparkles, ChevronLeft, ChevronRight, Check, ShoppingBag, ArrowRight, Sliders, Type, RotateCw, Image as ImageIcon } from 'lucide-react';
+import { Upload, Plus, Trash2, ArrowLeftRight, Edit3, BookOpen, Sparkles, ChevronLeft, ChevronRight, Check, ShoppingBag, ArrowRight, Sliders, Type, RotateCw, Image as ImageIcon, PlusCircle } from 'lucide-react';
 import { useShop } from '../context/ShopContext';
 import { uploadCustomerPhoto } from '../services/api';
 import AmmuAIAssistant from '../components/AmmuAIAssistant';
@@ -38,15 +38,57 @@ const DEMO_PHOTOS = [
 ];
 
 const AlbumCreatorPage = () => {
-  const { addToCart, showToast } = useShop();
+  const { cart, saveAlbumToCart, showToast } = useShop();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Unique Album ID tracking
+  const [currentAlbumId, setCurrentAlbumId] = useState(() => {
+    return location.state?.editAlbumId || (cart.length > 0 && cart[0].albumId ? cart[0].albumId : `album_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`);
+  });
 
   // Album State
   const [photos, setPhotos] = useState(DEMO_PHOTOS);
   const [albumTitle, setAlbumTitle] = useState('Our Beautiful Memories');
-  const [selectedSize, setSelectedSize] = useState(ALBUM_SIZES[1]); // Default 6x8
+  const [selectedSize, setSelectedSize] = useState(ALBUM_SIZES[0]); // Default Test Album 4x6 (₹1)
   const [selectedStyle, setSelectedStyle] = useState(ALBUM_STYLES[0]);
   const [coverPhotoIndex, setCoverPhotoIndex] = useState(0);
+
+  // Load existing album from cart if editing or exists
+  useEffect(() => {
+    const existing = cart.find(i => i.albumId === currentAlbumId || i.cartItemId === currentAlbumId);
+    if (existing) {
+      if (existing.albumTitle) setAlbumTitle(existing.albumTitle);
+      if (existing.photos && existing.photos.length > 0) {
+        setPhotos(existing.photos.map((p, idx) => ({
+          id: `p_${idx}`,
+          url: p.url,
+          order: p.order || idx + 1,
+          filter: 'Original'
+        })));
+      }
+      if (existing.albumSize) {
+        const foundSize = ALBUM_SIZES.find(s => s.dimensions === existing.albumSize) || ALBUM_SIZES.find(s => s.price === existing.price);
+        if (foundSize) setSelectedSize(foundSize);
+      }
+      if (existing.albumStyle) {
+        const foundStyle = ALBUM_STYLES.find(s => s.id === existing.albumStyle);
+        if (foundStyle) setSelectedStyle(foundStyle);
+      }
+    }
+  }, [currentAlbumId, cart]);
+
+  // Create new Album helper
+  const handleCreateNewAlbum = () => {
+    const newId = `album_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+    setCurrentAlbumId(newId);
+    setPhotos(DEMO_PHOTOS);
+    setAlbumTitle('Our New Memory Album');
+    setSelectedSize(ALBUM_SIZES[0]);
+    setSelectedStyle(ALBUM_STYLES[0]);
+    setCoverPhotoIndex(0);
+    showToast('Started a new photo album! 📸', 'info');
+  };
 
   // Active page flip preview state
   const [previewPage, setPreviewPage] = useState(0); // 0 = Cover, 1 = Pages 1-2, 2 = Pages 3-4, etc.
@@ -128,11 +170,12 @@ const AlbumCreatorPage = () => {
     setPhotos(newPhotos);
   };
 
-  // Add to cart
+  // Add or Update album in cart
   const handleAddToCart = () => {
     const coverUrl = photos[coverPhotoIndex]?.url || photos[0]?.url;
 
-    addToCart({
+    saveAlbumToCart({
+      albumId: currentAlbumId,
       productId: `album_${selectedSize.id}`,
       productName: `${albumTitle} (${selectedSize.label})`,
       quantity: 1,
@@ -163,17 +206,29 @@ const AlbumCreatorPage = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
       
       {/* Top Section Header */}
-      <div className="text-center space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold uppercase">
+      <div className="text-center space-y-3 relative">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold uppercase">
           <BookOpen className="w-3.5 h-3.5" />
           <span>Interactive Photo Album Creator</span>
         </div>
+
         <h1 className="font-serif text-3xl sm:text-5xl font-bold text-white tracking-tight">
           Create Your Personalized Photo Album
         </h1>
         <p className="text-xs sm:text-sm text-[var(--text-muted)] max-w-xl mx-auto">
           Upload 5 to 50 of your favourite memories, customize your title, arrange pages, and preview your handcrafted album live!
         </p>
+
+        <div className="pt-1">
+          <button 
+            type="button"
+            onClick={handleCreateNewAlbum}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-amber-400/40 text-amber-300 text-xs font-bold transition-all shadow-lg hover:scale-105"
+          >
+            <PlusCircle className="w-4 h-4 text-amber-400" />
+            <span>+ CREATE NEW ALBUM</span>
+          </button>
+        </div>
       </div>
 
       {/* STEP 1: MULTI-PHOTO UPLOAD DROP ZONE */}

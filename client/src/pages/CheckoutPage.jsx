@@ -7,7 +7,7 @@ import UPIQRCode from '../components/UPIQRCode';
 import confetti from 'canvas-confetti';
 
 const CheckoutPage = () => {
-  const { cart, getCartTotal, clearCart, user, showToast } = useShop();
+  const { cart, getCartTotal, removeFromCart, clearCart, user, showToast } = useShop();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -39,9 +39,9 @@ const CheckoutPage = () => {
           <ShoppingBag className="w-8 h-8" />
         </div>
         <h2 className="font-serif text-2xl text-white font-bold">Your Cart is Empty</h2>
-        <p className="text-xs text-gray-400">Please select a photo frame from the showroom first.</p>
-        <button onClick={() => navigate('/')} className="btn-primary py-3 px-6 text-xs">
-          Return to Showroom
+        <p className="text-xs text-gray-400">Please create a photo album or select a frame first.</p>
+        <button onClick={() => navigate('/create-album')} className="btn-primary py-3 px-6 text-xs">
+          Create Your Album
         </button>
       </div>
     );
@@ -78,7 +78,7 @@ const CheckoutPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Prevent duplicate submission if already submitting
+    // Prevent double submission
     if (isSubmitting) return;
 
     if (!formData.customerName.trim() || !formData.phone.trim() || !formData.email.trim() || !formData.doorNo.trim() || !formData.street.trim() || !formData.city.trim() || !formData.pincode.trim()) {
@@ -94,11 +94,18 @@ const CheckoutPage = () => {
     setIsSubmitting(true);
 
     try {
+      const firstItem = cart[0] || {};
       const orderPayload = {
         userId: user ? user.id : null,
         customerName: formData.customerName.trim(),
         phone: formData.phone.trim(),
         email: formData.email.trim(),
+        albumTitle: firstItem.albumTitle || firstItem.productName || 'Custom Photo Album',
+        albumSize: firstItem.albumSize || firstItem.size || '8 × 10 inch',
+        albumStyle: firstItem.albumStyle || firstItem.frame || 'Classic',
+        photoCount: firstItem.photoCount || (firstItem.photos ? firstItem.photos.length : 1),
+        coverPhoto: firstItem.coverPhoto || firstItem.customizedImageUrl || firstItem.originalImageUrl || '',
+        photos: firstItem.photos || [],
         items: cart,
         totalAmount,
         shippingAddress: {
@@ -116,7 +123,7 @@ const CheckoutPage = () => {
         paymentScreenshotUrl: formData.paymentScreenshotUrl
       };
 
-      console.log('[Checkout Request Payload]:', orderPayload);
+      console.log('[Checkout Submit Payload]:', orderPayload);
       const response = await createOrder(orderPayload);
 
       if (response.success && response.order) {
@@ -130,12 +137,22 @@ const CheckoutPage = () => {
         clearCart();
         navigate(`/order-success/${response.order.orderId}`, { state: { order: response.order } });
       } else {
-        throw new Error(response.message || 'Order creation returned incomplete response');
+        throw new Error(response.message || 'Order creation failed on backend');
       }
     } catch (err) {
-      console.error('[Checkout Submission Error Details]:', err);
-      const serverMsg = err.response?.data?.message || err.message || 'Server connection error';
-      showToast(`Unable to place order: ${serverMsg}`, 'error');
+      console.error('[Checkout Error Details]:', {
+        status: err.response?.status,
+        data: err.response?.data,
+        message: err.message,
+        url: err.config?.url
+      });
+
+      const serverMsg = err.response?.data?.message;
+      if (serverMsg) {
+        showToast(`Unable to place order: ${serverMsg}`, 'error');
+      } else {
+        showToast('Unable to place your order. Please try again.', 'error');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -423,35 +440,57 @@ const CheckoutPage = () => {
             {/* Summary Header */}
             <div className="border-b border-amber-500/20 pb-3 flex items-center justify-between">
               <h3 className="font-serif font-bold text-base sm:text-lg text-white">ORDER SUMMARY</h3>
-              <span className="text-xs text-amber-300 font-semibold">{cart.length} item</span>
+              <span className="text-xs text-amber-300 font-semibold">{cart.length} item{cart.length > 1 ? 's' : ''}</span>
             </div>
 
-            {/* Product Item Card */}
-            <div className="space-y-3.5 max-h-64 overflow-y-auto pr-1">
+            {/* Product Item Cards */}
+            <div className="space-y-3.5 max-h-72 overflow-y-auto pr-1">
               {cart.map((item, idx) => (
-                <div key={idx} className="flex items-center justify-between gap-3 bg-black/40 p-3 rounded-xl border border-white/5">
-                  <div className="flex items-center gap-3 min-w-0">
-                    {/* Fixed aspect ratio image without stretching */}
-                    <div className="w-16 h-16 rounded-xl overflow-hidden frame-border-gold flex-shrink-0 bg-black">
-                      <img 
-                        src={item.customizedImageUrl || item.originalImageUrl} 
-                        alt={item.productName} 
-                        className="w-full h-full object-cover rounded-lg" 
-                      />
+                <div key={item.cartItemId || item.albumId || idx} className="bg-black/50 p-3.5 rounded-2xl border border-amber-400/20 space-y-2.5">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      {/* Album cover image */}
+                      <div className="w-16 h-16 rounded-xl overflow-hidden frame-border-gold flex-shrink-0 bg-black">
+                        <img 
+                          src={item.coverPhoto || item.customizedImageUrl || item.originalImageUrl} 
+                          alt={item.albumTitle || item.productName} 
+                          className="w-full h-full object-cover rounded-lg" 
+                        />
+                      </div>
+                      
+                      <div className="min-w-0 text-xs space-y-0.5">
+                        <p className="font-bold text-white truncate text-xs sm:text-sm">{item.albumTitle || item.productName}</p>
+                        <p className="text-amber-300/90 text-[11px] font-semibold">
+                          {item.photoCount || item.photos?.length || 1} Photos • {item.albumStyle || item.frame || 'Classic'}
+                        </p>
+                        <p className="text-gray-400 text-[11px]">{item.albumSize || item.size || '8 × 10 inch'}</p>
+                      </div>
                     </div>
-                    
-                    <div className="min-w-0 text-xs space-y-0.5">
-                      <p className="font-semibold text-white truncate text-xs sm:text-sm">{item.productName}</p>
-                      <p className="text-gray-400 text-[11px] truncate">{item.frame}</p>
-                      <p className="text-gray-400 text-[11px]">{item.size}</p>
+
+                    <div className="text-right flex-shrink-0">
+                      <span className="font-serif font-extrabold text-base text-amber-300">
+                        ₹{item.price * (item.quantity || 1)}
+                      </span>
                     </div>
                   </div>
 
-                  {/* Right-aligned Price */}
-                  <div className="text-right flex-shrink-0">
-                    <span className="font-serif font-extrabold text-base text-amber-300">
-                      ₹{item.price * item.quantity}
-                    </span>
+                  {/* Album Actions: EDIT ALBUM & REMOVE */}
+                  <div className="flex items-center justify-between text-[11px] pt-2 border-t border-white/10">
+                    <button
+                      type="button"
+                      onClick={() => navigate('/create-album', { state: { editAlbumId: item.albumId || item.cartItemId } })}
+                      className="text-amber-300 hover:text-white font-bold flex items-center gap-1 transition-colors"
+                    >
+                      ✏️ EDIT ALBUM
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => removeFromCart(item.cartItemId || item.albumId)}
+                      className="text-red-400 hover:text-red-300 font-semibold transition-colors"
+                    >
+                      🗑️ REMOVE
+                    </button>
                   </div>
                 </div>
               ))}
@@ -461,7 +500,7 @@ const CheckoutPage = () => {
             <div className="border-t border-amber-500/20 pt-3 space-y-2 text-xs text-gray-300">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span className="text-white">₹{totalAmount}</span>
+                <span className="text-white font-semibold">₹{totalAmount}</span>
               </div>
               <div className="flex justify-between">
                 <span>Safe Delivery Packaging</span>
@@ -482,7 +521,7 @@ const CheckoutPage = () => {
               }`}
             >
               <Lock className="w-4 h-4" />
-              <span>{isSubmitting ? 'Placing Order...' : '🔒 PLACE ORDER'}</span>
+              <span>{isSubmitting ? 'PLACING ORDER...' : '🔒 PLACE ORDER'}</span>
             </button>
 
             <div className="text-center text-[11px] text-gray-400 space-y-1 pt-1">
