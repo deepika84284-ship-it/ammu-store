@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 
 const orderItemSchema = new mongoose.Schema({
   productId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Product'
+    type: mongoose.Schema.Types.Mixed,
+    default: null
   },
   productName: {
     type: String,
@@ -62,8 +62,7 @@ const orderSchema = new mongoose.Schema({
     unique: true
   },
   userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    type: mongoose.Schema.Types.Mixed,
     default: null
   },
   customerName: {

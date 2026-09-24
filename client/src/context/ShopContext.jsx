@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { X, Sparkles, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 const ShopContext = createContext();
 
@@ -40,7 +41,7 @@ export const ShopProvider = ({ children }) => {
     setToast({ message, type });
     setTimeout(() => {
       setToast(null);
-    }, 3500);
+    }, 4500);
   };
 
   const loginUser = (userData, authToken) => {
@@ -69,7 +70,6 @@ export const ShopProvider = ({ children }) => {
   };
 
   const addToCart = (item) => {
-    // Generate unique key based on product + frame + size + uploaded photo
     const cartItemId = `${item.productId}_${item.frame}_${item.size}_${Date.now()}`;
     const newItem = { ...item, cartItemId };
 
@@ -109,11 +109,29 @@ export const ShopProvider = ({ children }) => {
       showToast
     }}>
       {children}
-      {/* Toast Notification Container */}
+      {/* Top Floating Toast Notification Container */}
       {toast && (
-        <div className="toast-popup">
-          <span>✨</span>
-          <span style={{ fontSize: '0.92rem', fontWeight: '500' }}>{toast.message}</span>
+        <div className={`toast-popup ${toast.type === 'error' ? 'toast-popup-error' : ''}`}>
+          <div className="flex items-center gap-2.5 overflow-hidden">
+            {toast.type === 'error' ? (
+              <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
+            ) : toast.type === 'success' ? (
+              <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+            ) : (
+              <Sparkles className="w-5 h-5 text-amber-400 flex-shrink-0" />
+            )}
+            <span className="text-xs sm:text-sm font-medium text-white leading-tight">
+              {toast.message}
+            </span>
+          </div>
+
+          <button 
+            onClick={() => setToast(null)}
+            className="p-1 rounded-full text-gray-400 hover:text-white hover:bg-white/10 transition-colors flex-shrink-0"
+            title="Close message"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
       )}
     </ShopContext.Provider>
