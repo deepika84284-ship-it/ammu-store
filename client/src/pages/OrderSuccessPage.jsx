@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useLocation, Link } from 'react-router-dom';
-import { CheckCircle2, Package, Truck, ArrowRight, RefreshCw, Heart, Sparkles } from 'lucide-react';
+import { CheckCircle2, Package, Truck, ArrowRight, RefreshCw, Heart, Sparkles, Clock, AlertTriangle, ShieldCheck } from 'lucide-react';
 import { getOrderById } from '../services/api';
 
 const OrderSuccessPage = () => {
@@ -10,13 +10,11 @@ const OrderSuccessPage = () => {
   const [loading, setLoading] = useState(!order);
 
   useEffect(() => {
-    if (!order) {
-      fetchOrder();
-    }
-    // Set up auto polling every 5 seconds so status changes from Admin show live!
+    fetchOrder(false);
+    // Poll every 4 seconds so customer sees status update instantly when Admin confirms
     const interval = setInterval(() => {
       fetchOrder(false);
-    }, 5000);
+    }, 4000);
     return () => clearInterval(interval);
   }, [id]);
 
@@ -34,16 +32,15 @@ const OrderSuccessPage = () => {
     }
   };
 
-  const getStatusStepIndex = (status) => {
-    switch (status) {
-      case 'Pending': return 1;
-      case 'Confirmed': return 2;
-      case 'Processing': return 3;
-      case 'Shipped':
-      case 'Out for Delivery': return 4;
-      case 'Delivered': return 5;
-      default: return 1;
-    }
+  const getStatusStepIndex = (payStatus, ordStatus) => {
+    if (payStatus === 'Payment Rejected' || ordStatus === 'Cancelled') return -1;
+    if (payStatus === 'Verification Pending') return 1; // Step 1: Verification Pending
+    if (payStatus === 'Paid' && ordStatus === 'Pending') return 2; // Step 2: Payment Confirmed
+    if (ordStatus === 'Confirmed') return 3; // Step 3: Order Confirmed
+    if (ordStatus === 'Processing') return 4; // Step 4: Processing
+    if (ordStatus === 'Shipped' || ordStatus === 'Out for Delivery') return 5; // Step 5: Shipped
+    if (ordStatus === 'Delivered') return 6; // Step 6: Delivered
+    return 1;
   };
 
   if (loading) {
@@ -64,93 +61,149 @@ const OrderSuccessPage = () => {
     );
   }
 
-  const currentStep = getStatusStepIndex(order.orderStatus);
+  const stepIndex = getStatusStepIndex(order.paymentStatus, order.orderStatus);
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12 space-y-8">
       
       {/* Success Hero Header */}
       <div className="glass-panel-gold p-8 rounded-3xl text-center space-y-4 border border-amber-400/40 shadow-2xl">
-        <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto border border-emerald-500/40 animate-pulse">
-          <CheckCircle2 className="w-10 h-10" />
+        <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto border shadow-lg ${
+          order.paymentStatus === 'Verification Pending' 
+            ? 'bg-amber-500/20 text-amber-400 border-amber-500/40 animate-pulse'
+            : order.paymentStatus === 'Paid'
+            ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40'
+            : 'bg-red-500/20 text-red-400 border-red-500/40'
+        }`}>
+          {order.paymentStatus === 'Verification Pending' ? <Clock className="w-9 h-9" /> :
+           order.paymentStatus === 'Paid' ? <CheckCircle2 className="w-9 h-9" /> : <AlertTriangle className="w-9 h-9" />}
         </div>
+
         <span className="badge-gold">ORDER #{order.orderId}</span>
         
         <h1 className="font-serif text-3xl sm:text-4xl font-bold text-white">
-          Thank You, {order.customerName}! ❤️
+          {order.paymentStatus === 'Verification Pending' ? `Order Submitted, ${order.customerName}!` :
+           order.paymentStatus === 'Paid' ? `Order Confirmed, ${order.customerName}! ❤️` :
+           `Order Status Update`}
         </h1>
         
         <p className="text-sm text-amber-200/90 max-w-lg mx-auto">
-          Your custom frame order has been successfully saved to our database!
+          Your frame customization details have been saved.
         </p>
 
-        {/* Live Admin status highlight banner */}
-        <div className="p-4 rounded-2xl bg-black/60 border border-amber-400/30 max-w-md mx-auto">
-          <span className="text-xs text-gray-400 block mb-1">Current Order Status:</span>
-          <span className="text-lg font-bold text-amber-300 flex items-center justify-center gap-2">
-            <Sparkles className="w-4 h-4 text-amber-400" />
-            {order.orderStatus === 'Confirmed' ? 'Your order has been confirmed!' : order.orderStatus}
-          </span>
-          <p className="text-[11px] text-gray-400 mt-1">
-            (Auto-updates when Admin confirms your order in the Admin Dashboard)
-          </p>
+        {/* Live Payment & Order Status Card */}
+        <div className="p-5 rounded-2xl bg-black/60 border border-amber-400/30 max-w-md mx-auto space-y-2">
+          
+          <div className="flex justify-between items-center text-xs text-gray-300 border-b border-white/10 pb-2">
+            <span>Payment Method:</span>
+            <strong className="text-white">{order.paymentMethod}</strong>
+          </div>
+
+          {order.utrNumber && (
+            <div className="flex justify-between items-center text-xs text-gray-300 border-b border-white/10 pb-2">
+              <span>UPI Transaction UTR:</span>
+              <strong className="font-mono text-amber-300">{order.utrNumber}</strong>
+            </div>
+          )}
+
+          <div className="flex justify-between items-center text-xs text-gray-300 border-b border-white/10 pb-2">
+            <span>Payment Status:</span>
+            <span className={`font-bold px-3 py-0.5 rounded-full text-xs ${
+              order.paymentStatus === 'Verification Pending' ? 'bg-amber-400/20 text-amber-300 border border-amber-400/40' :
+              order.paymentStatus === 'Paid' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40' :
+              'bg-red-500/20 text-red-400 border border-red-500/40'
+            }`}>
+              {order.paymentStatus === 'Verification Pending' ? '⏳ Verification Pending' : order.paymentStatus}
+            </span>
+          </div>
+
+          <div className="flex justify-between items-center text-xs text-gray-300 pt-1">
+            <span>Order Status:</span>
+            <span className="font-bold text-amber-300">
+              {order.orderStatus === 'Confirmed' ? '✓ Order Confirmed' : order.orderStatus}
+            </span>
+          </div>
+
         </div>
+
       </div>
 
-      {/* Visual Timeline Tracker */}
+      {/* Visual Customer Timeline Tracker */}
       <div className="glass-panel p-6 sm:p-8 rounded-3xl space-y-6 border border-white/10">
-        <h3 className="font-serif font-bold text-lg text-white">Order Tracking Progress</h3>
+        <h3 className="font-serif font-bold text-lg text-white">Payment & Order Verification Timeline</h3>
 
-        <div className="grid grid-cols-5 gap-2 text-center text-xs relative">
+        <div className="grid grid-cols-2 sm:grid-cols-6 gap-3 text-center text-xs">
           
-          {/* Step 1 */}
+          {/* Step 1: Verification Pending */}
           <div className="space-y-2">
-            <div className={`w-10 h-10 rounded-full mx-auto flex items-center justify-center font-bold transition-all ${
-              currentStep >= 1 ? 'bg-amber-400 text-black shadow-lg scale-110' : 'bg-white/10 text-gray-500'
+            <div className={`w-9 h-9 rounded-full mx-auto flex items-center justify-center font-bold text-xs transition-all ${
+              stepIndex >= 1 ? 'bg-amber-400 text-black shadow-lg scale-110' : 'bg-white/10 text-gray-500'
             }`}>
-              ✓
+              {stepIndex > 1 ? '✓' : '1'}
             </div>
-            <span className={currentStep >= 1 ? 'text-amber-300 font-semibold' : 'text-gray-500'}>Order Placed</span>
+            <span className={stepIndex >= 1 ? 'text-amber-300 font-semibold' : 'text-gray-500'}>
+              Payment Verification Pending
+            </span>
           </div>
 
-          {/* Step 2 */}
+          {/* Step 2: Payment Confirmed */}
           <div className="space-y-2">
-            <div className={`w-10 h-10 rounded-full mx-auto flex items-center justify-center font-bold transition-all ${
-              currentStep >= 2 ? 'bg-amber-400 text-black shadow-lg scale-110' : 'bg-white/10 text-gray-500'
+            <div className={`w-9 h-9 rounded-full mx-auto flex items-center justify-center font-bold text-xs transition-all ${
+              stepIndex >= 2 ? 'bg-amber-400 text-black shadow-lg scale-110' : 'bg-white/10 text-gray-500'
             }`}>
-              {currentStep >= 2 ? '✓' : '2'}
+              {stepIndex > 2 ? '✓' : '2'}
             </div>
-            <span className={currentStep >= 2 ? 'text-amber-300 font-semibold' : 'text-gray-500'}>Confirmed</span>
+            <span className={stepIndex >= 2 ? 'text-amber-300 font-semibold' : 'text-gray-500'}>
+              Payment Confirmed
+            </span>
           </div>
 
-          {/* Step 3 */}
+          {/* Step 3: Order Confirmed */}
           <div className="space-y-2">
-            <div className={`w-10 h-10 rounded-full mx-auto flex items-center justify-center font-bold transition-all ${
-              currentStep >= 3 ? 'bg-amber-400 text-black shadow-lg scale-110' : 'bg-white/10 text-gray-500'
+            <div className={`w-9 h-9 rounded-full mx-auto flex items-center justify-center font-bold text-xs transition-all ${
+              stepIndex >= 3 ? 'bg-amber-400 text-black shadow-lg scale-110' : 'bg-white/10 text-gray-500'
             }`}>
-              {currentStep >= 3 ? '✓' : '3'}
+              {stepIndex > 3 ? '✓' : '3'}
             </div>
-            <span className={currentStep >= 3 ? 'text-amber-300 font-semibold' : 'text-gray-500'}>Processing</span>
+            <span className={stepIndex >= 3 ? 'text-amber-300 font-semibold' : 'text-gray-500'}>
+              Order Confirmed
+            </span>
           </div>
 
-          {/* Step 4 */}
+          {/* Step 4: Processing */}
           <div className="space-y-2">
-            <div className={`w-10 h-10 rounded-full mx-auto flex items-center justify-center font-bold transition-all ${
-              currentStep >= 4 ? 'bg-amber-400 text-black shadow-lg scale-110' : 'bg-white/10 text-gray-500'
+            <div className={`w-9 h-9 rounded-full mx-auto flex items-center justify-center font-bold text-xs transition-all ${
+              stepIndex >= 4 ? 'bg-amber-400 text-black shadow-lg scale-110' : 'bg-white/10 text-gray-500'
             }`}>
-              {currentStep >= 4 ? '✓' : '4'}
+              {stepIndex > 4 ? '✓' : '4'}
             </div>
-            <span className={currentStep >= 4 ? 'text-amber-300 font-semibold' : 'text-gray-500'}>Shipped</span>
+            <span className={stepIndex >= 4 ? 'text-amber-300 font-semibold' : 'text-gray-500'}>
+              Processing
+            </span>
           </div>
 
-          {/* Step 5 */}
+          {/* Step 5: Shipped */}
           <div className="space-y-2">
-            <div className={`w-10 h-10 rounded-full mx-auto flex items-center justify-center font-bold transition-all ${
-              currentStep >= 5 ? 'bg-amber-400 text-black shadow-lg scale-110' : 'bg-white/10 text-gray-500'
+            <div className={`w-9 h-9 rounded-full mx-auto flex items-center justify-center font-bold text-xs transition-all ${
+              stepIndex >= 5 ? 'bg-amber-400 text-black shadow-lg scale-110' : 'bg-white/10 text-gray-500'
             }`}>
-              {currentStep >= 5 ? '✓' : '5'}
+              {stepIndex > 5 ? '✓' : '5'}
             </div>
-            <span className={currentStep >= 5 ? 'text-amber-300 font-semibold' : 'text-gray-500'}>Delivered</span>
+            <span className={stepIndex >= 5 ? 'text-amber-300 font-semibold' : 'text-gray-500'}>
+              Shipped
+            </span>
+          </div>
+
+          {/* Step 6: Delivered */}
+          <div className="space-y-2">
+            <div className={`w-9 h-9 rounded-full mx-auto flex items-center justify-center font-bold text-xs transition-all ${
+              stepIndex >= 6 ? 'bg-amber-400 text-black shadow-lg scale-110' : 'bg-white/10 text-gray-500'
+            }`}>
+              {stepIndex >= 6 ? '✓' : '6'}
+            </div>
+            <span className={stepIndex >= 6 ? 'text-amber-300 font-semibold' : 'text-gray-500'}>
+              Delivered
+            </span>
           </div>
 
         </div>
@@ -162,7 +215,7 @@ const OrderSuccessPage = () => {
         {/* Items */}
         <div className="glass-panel p-6 rounded-2xl space-y-4 border border-white/10">
           <h4 className="font-serif font-semibold text-white text-base border-b border-white/10 pb-2">
-            Ordered Items
+            Ordered Customized Items
           </h4>
           <div className="space-y-3">
             {order.items.map((item, idx) => (
@@ -177,7 +230,7 @@ const OrderSuccessPage = () => {
             ))}
           </div>
           <div className="border-t border-white/10 pt-3 flex justify-between font-bold text-sm text-white">
-            <span>Total Paid</span>
+            <span>Total Payable</span>
             <span className="gold-gradient-text text-lg">₹{order.totalAmount}</span>
           </div>
         </div>
@@ -194,7 +247,6 @@ const OrderSuccessPage = () => {
             <p>{order.shippingAddress.doorNo}, {order.shippingAddress.street}</p>
             {order.shippingAddress.area && <p>{order.shippingAddress.area}</p>}
             <p>{order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.pincode}</p>
-            <p className="pt-2 text-amber-300">Payment: <strong>{order.paymentMethod}</strong> ({order.paymentStatus})</p>
           </div>
         </div>
 

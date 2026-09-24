@@ -4,7 +4,7 @@
       "_id": "user_admin_1",
       "name": "Ammu Admin",
       "email": "admin@ammuframestore.com",
-      "password": "$2a$10$S.292g4y6j35cMSqw8bjTOsck8oy9d6.vzI5jurAwFAZZmARmZWce",
+      "password": "$2a$10$OPOS5t4drgIfFfqB6kpwheKYYNn3ISS7Iw7ZfsHVsf.oym7A13MH2",
       "phone": "9876543210",
       "role": "admin",
       "address": {
@@ -258,6 +258,39 @@
     }
   ],
   "orders": [
+    {
+      "_id": "ord_1790235103171",
+      "orderId": "AMMU1002",
+      "userId": null,
+      "customerName": "Deepika",
+      "phone": "9876543210",
+      "email": "deepika@example.com",
+      "items": [
+        {
+          "size": "4 � 6",
+          "quantity": 1,
+          "filter": "Original",
+          "price": 1,
+          "productName": "Mini Memory Frame (?1 Test Order)",
+          "frame": "Classic"
+        }
+      ],
+      "totalAmount": 1,
+      "shippingAddress": {
+        "street": "Mount Road",
+        "doorNo": "Door #42",
+        "pincode": "600001",
+        "state": "Tamil Nadu",
+        "city": "Chennai"
+      },
+      "paymentMethod": "UPI Payment",
+      "utrNumber": "426819024812",
+      "paymentScreenshotUrl": "",
+      "paymentStatus": "Paid",
+      "orderStatus": "Confirmed",
+      "createdAt": "2026-09-24T07:31:43.171Z",
+      "updatedAt": "2026-09-24T07:32:08.233Z"
+    },
     {
       "_id": "ord_1790232012286",
       "orderId": "AMMU1001",

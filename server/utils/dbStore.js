@@ -150,7 +150,6 @@ class DBStore {
         const parsed = JSON.parse(raw);
         this.data = { ...this.data, ...parsed };
       }
-      // Ensure admin password is reset to valid hash for admin123
       const adminIdx = this.data.users.findIndex(u => u.email === 'admin@ammuframestore.com');
       if (adminIdx !== -1) {
         this.data.users[adminIdx].password = getAdminPasswordHash();
@@ -362,6 +361,25 @@ class DBStore {
 
     const ord = this.data.orders.find(o => o._id === id || o.orderId === id);
     if (ord) {
+      ord.orderStatus = orderStatus;
+      ord.updatedAt = new Date();
+      this.saveFallbackData();
+      return ord;
+    }
+    return null;
+  }
+
+  async verifyPayment(id, paymentStatus, orderStatus) {
+    if (this.isMongoConnected) {
+      try {
+        const ord = await Order.findByIdAndUpdate(id, { paymentStatus, orderStatus, updatedAt: new Date() }, { new: true });
+        if (ord) return ord;
+      } catch (e) {}
+    }
+
+    const ord = this.data.orders.find(o => o._id === id || o.orderId === id);
+    if (ord) {
+      ord.paymentStatus = paymentStatus;
       ord.orderStatus = orderStatus;
       ord.updatedAt = new Date();
       this.saveFallbackData();

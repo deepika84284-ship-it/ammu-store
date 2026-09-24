@@ -79,6 +79,11 @@ export const updateOrderStatus = async (orderId, orderStatus) => {
   return response.data;
 };
 
+export const verifyPaymentApi = async (orderId, action) => {
+  const response = await api.patch(`/orders/admin/${orderId}/payment-verify`, { action });
+  return response.data;
+};
+
 export const createProduct = async (productData) => {
   const response = await api.post('/products', productData);
   return response.data;

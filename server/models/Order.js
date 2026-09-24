@@ -89,12 +89,21 @@ const orderSchema = new mongoose.Schema({
   },
   paymentMethod: {
     type: String,
-    default: 'Test Order'
+    enum: ['Test Order', 'UPI Payment', 'Cash on Delivery'],
+    default: 'UPI Payment'
+  },
+  utrNumber: {
+    type: String,
+    default: ''
+  },
+  paymentScreenshotUrl: {
+    type: String,
+    default: ''
   },
   paymentStatus: {
     type: String,
-    enum: ['Pending', 'Paid', 'Failed'],
-    default: 'Pending'
+    enum: ['Pending', 'Verification Pending', 'Paid', 'Payment Rejected', 'Failed'],
+    default: 'Verification Pending'
   },
   orderStatus: {
     type: String,
