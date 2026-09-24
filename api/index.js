@@ -15,9 +15,18 @@ const uploadRoutes = require('../server/routes/uploadRoutes');
 
 const app = express();
 
-// Connect DB
+// Connect DB at startup & per request middleware
 connectDB().then(() => {
   seedData();
+}).catch((e) => console.warn('[Seed Startup Warning]:', e.message));
+
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+  } catch (e) {
+    console.warn('[DB Middleware Warning]:', e.message);
+  }
+  next();
 });
 
 // Configure CORS to accept requests from Vercel deployed frontend & localhost

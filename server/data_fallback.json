@@ -4,7 +4,7 @@
       "_id": "user_admin_1",
       "name": "Ammu Admin",
       "email": "admin@ammuframestore.com",
-      "password": "$2a$10$N8eDGe1vI41.Ws7tV8Cet.hBtBVS.KvC5lwwOgrYFTdCN7pm79u1u",
+      "password": "$2a$10$ufY3vjwQVsCgi.8hMg5LTOh0j/NQJcJGR7nsy8QkYm8RtlSsc/RKi",
       "phone": "9876543210",
       "role": "admin",
       "address": {
@@ -208,6 +208,39 @@
     }
   ],
   "orders": [
+    {
+      "_id": "ord_1790248924786",
+      "orderId": "AMMU1008",
+      "userId": null,
+      "customerName": "Test Deepika",
+      "phone": "9876543210",
+      "email": "deepika@example.com",
+      "items": [
+        {
+          "albumId": "album_123",
+          "productName": "Our Beautiful Memories (Test Album ₹1)",
+          "price": 1,
+          "quantity": 1,
+          "frame": "Classic",
+          "size": "4 × 6 inch"
+        }
+      ],
+      "totalAmount": 1,
+      "shippingAddress": {
+        "doorNo": "42",
+        "street": "Mount Road",
+        "city": "Chennai",
+        "state": "Tamil Nadu",
+        "pincode": "600001"
+      },
+      "paymentMethod": "Test Order",
+      "utrNumber": "",
+      "paymentScreenshotUrl": "",
+      "paymentStatus": "Paid",
+      "orderStatus": "Confirmed",
+      "createdAt": "2026-09-24T11:22:04.787Z",
+      "updatedAt": "2026-09-24T11:22:04.787Z"
+    },
     {
       "_id": "ord_1790242740283",
       "orderId": "AMMU1007",

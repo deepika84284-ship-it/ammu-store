@@ -33,9 +33,28 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Please enter your 12-digit UPI Transaction ID / UTR Number' });
     }
 
-    const allOrders = await dbStore.getOrders();
-    const count = allOrders.length;
-    const orderId = `AMMU${1001 + count}`;
+    const generateUniqueOrderId = async () => {
+      try {
+        const allOrders = await dbStore.getOrders();
+        let baseCount = allOrders.length;
+        let candidate = `AMMU${1001 + baseCount}`;
+        let attempt = 0;
+
+        while (attempt < 50) {
+          const existing = await dbStore.getOrderById(candidate);
+          if (!existing) {
+            return candidate;
+          }
+          attempt++;
+          candidate = `AMMU${1001 + baseCount + attempt}`;
+        }
+      } catch (e) {
+        console.warn('[OrderId Generation Notice]:', e.message);
+      }
+      return `AMMU${Date.now().toString().slice(-6)}${Math.floor(Math.random() * 90 + 10)}`;
+    };
+
+    const orderId = await generateUniqueOrderId();
 
     // Determine initial payment status
     let paymentStatus = 'Verification Pending';
